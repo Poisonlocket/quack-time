@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, StyleSheet, Text, Platform, ProgressBarAndroid, Vibration } from 'react-native';
+import { View, Button, StyleSheet, Text, Platform, ProgressBarAndroid, Vibration, Image } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Accelerometer } from 'expo-sensors';
 import * as Progress from 'react-native-progress';
@@ -127,6 +127,11 @@ export default function HomeScreen() {
                     />
                 </View>
             </View>
+            <Image
+                source={require("../../assets/images/ic_launcher_round.png")}
+                style={styles.appLogo}
+
+            />
         </View>
     );
 }
@@ -134,7 +139,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#EDE8D0',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -166,4 +171,9 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         color: '#000',
     },
+    appLogo: {
+        width: 100,
+        height: 100,
+        marginTop: 20,
+    }
 });
