@@ -1,33 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, StyleSheet, Text, Platform, ProgressBarAndroid, Vibration } from 'react-native'; // Vibration importiert
+import { View, Button, StyleSheet, Text, Platform, ProgressBarAndroid, Vibration } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { ProgressView } from '@react-native-community/progress-view';
+import { Accelerometer } from 'expo-sensors';
+import * as Progress from 'react-native-progress';
 
 export default function HomeScreen() {
-    const [timeLeft, setTimeLeft] = useState(90); // Default to Pomodoro timer
+    const [timeLeft, setTimeLeft] = useState(10);
     const [isRunning, setIsRunning] = useState(false);
-    const [currentTimer, setCurrentTimer] = useState<'pomodoro' | 'break'>('pomodoro'); // Active timer
+    const [currentTimer, setCurrentTimer] = useState<'pomodoro' | 'break'>('pomodoro');
     const [lastPress, setLastPress] = useState<number | null>(null);
     const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
 
-    const totalTime = currentTimer === 'pomodoro' ? 10 : 300; // Total time for the current session
-    const progress = 1 - timeLeft / totalTime; // Calculate progress as a fraction
+    const totalTime = currentTimer === 'pomodoro' ? 10 : 300;
+    const progress = 1 - timeLeft / totalTime;
+
+    const movementThreshold = 1.5; // Adjust this value as needed
 
     const handleSingleClick = (type: 'pomodoro' | 'break') => {
         if (currentTimer === type) {
-            // Toggle pause/resume if the same timer is active
             setIsRunning((prev) => !prev);
         } else {
-            // Switch to the selected timer and reset it
             setCurrentTimer(type);
-            setTimeLeft(type === 'pomodoro' ? 90 : 300);
+            setTimeLeft(type === 'pomodoro' ? 10 : 300);
             setIsRunning(true);
         }
     };
 
     const handleDoubleClick = (type: 'pomodoro' | 'break') => {
         if (currentTimer === type) {
-            // Reset the current timer
             setTimeLeft(type === 'pomodoro' ? 10 : 300);
             setIsRunning(false);
         }
@@ -60,9 +60,8 @@ export default function HomeScreen() {
             setIsRunning(false);
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-            // Vibrieren nur, wenn Pomodoro fertig ist
             if (currentTimer === 'pomodoro') {
-                Vibration.vibrate(1000); // 1 Sekunde lang vibrieren
+                Vibration.vibrate(1000);
             }
         }
 
@@ -70,6 +69,24 @@ export default function HomeScreen() {
             if (timer) clearInterval(timer);
         };
     }, [isRunning, timeLeft, currentTimer]);
+
+    useEffect(() => {
+        const subscription = Accelerometer.addListener(({ x, y, z }) => {
+            const totalAcceleration = Math.sqrt(x * x + y * y + z * z);
+
+            if (totalAcceleration > movementThreshold) {
+                setIsRunning(false);
+                setTimeLeft(currentTimer === 'pomodoro' ? 10 : 300);
+                console.log('Movement detected! Timer reset.');
+            }
+        });
+
+        Accelerometer.setUpdateInterval(100); // Update every 100ms
+
+        return () => {
+            subscription.remove();
+        };
+    }, [currentTimer]);
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -79,6 +96,9 @@ export default function HomeScreen() {
 
     return (
         <View style={styles.container}>
+            <View>
+                <Text style={styles.appTitle}>QuackTime</Text>
+            </View>
             <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
             {Platform.OS === 'android' ? (
                 <ProgressBarAndroid
@@ -89,19 +109,21 @@ export default function HomeScreen() {
                     color="#FFD43B"
                 />
             ) : (
-                <ProgressView progress={progress} style={styles.progressBar} />
+                <Progress.Bar progress={progress} width={200} />
             )}
             <View style={styles.buttonContainer}>
                 <View style={styles.buttonWrapper}>
                     <Button
                         title="Pomodoro"
                         onPress={() => handleClick('pomodoro')}
+                        color={currentTimer === 'pomodoro' ? '#FFD43B' : '#000'}
                     />
                 </View>
                 <View style={styles.buttonWrapper}>
                     <Button
                         title="Break"
                         onPress={() => handleClick('break')}
+                        color={currentTimer === 'break' ? '#FFD43B' : '#000'}
                     />
                 </View>
             </View>
@@ -134,8 +156,14 @@ const styles = StyleSheet.create({
     buttonWrapper: {
         borderWidth: 2,
         borderColor: '#FFD43B',
-        borderRadius: 25,
         padding: 5,
         marginHorizontal: 10,
+    },
+    appTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginVertical: 20,
+        color: '#000',
     },
 });
