@@ -9,7 +9,7 @@ export default function Home() {
       <main className="bg-yellow-100 text-gray-800 min-h-screen">
         {/* Hero Section */}
         <section className="flex flex-col items-center justify-center text-center px-6 py-24 bg-yellow-200">
-          <h1 className="text-5xl font-extrabold mb-4">🦆 Quack Time</h1>
+          <h1 className="text-5xl font-extrabold flex items-center mb-4"><Image className={"mr-3"} src={"/5d486b15-c8eb-4471-bf4d-1168398f24f9-photoaidcom-cropped.png"} alt={"icon"} height={100} width={100}></Image> Quack Time</h1>
           <p className="text-xl mb-6 max-w-2xl">
             Dein Pomodoro-Timer mit Personality – Lass dich vom Quack motivieren und booste deine Produktivität auf süsseste Weise.
           </p>
@@ -55,6 +55,21 @@ export default function Home() {
                 height={600}
                 className="rounded-2xl shadow-xl border"
             />
+              <Image
+                  src="/img_2.png"
+                  alt="Screenshot von Quack Time"
+                  width={450}
+                  height={300}
+                  className="rounded-2xl shadow-xl ml-5 border"
+              />
+            <Image
+                src="/img_3.png"
+                alt="Screenshot von Quack Time"
+                width={450}
+                height={300}
+                className="rounded-2xl shadow-xl ml-5 border"
+            />
+
           </div>
         </section>
 
